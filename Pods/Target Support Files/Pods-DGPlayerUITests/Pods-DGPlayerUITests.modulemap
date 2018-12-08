@@ -1,0 +1,6 @@
+framework module Pods_DGPlayerUITests {
+  umbrella header "Pods-DGPlayerUITests-umbrella.h"
+
+  export *
+  module * { export * }
+}
