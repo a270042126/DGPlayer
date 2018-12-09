@@ -8,23 +8,83 @@
 
 import UIKit
 import AVFoundation
+import SnapKit
 
-protocol DGPlayViewDelegate: class {
-    func dgplayViewRotateButtonClicked()
+
+
+protocol DGPlayerViewDelegate: class {
+    func dgplayerViewRotateButtonClicked()
 }
 
-class DGPlayView: UIView {
+class DGPlayerView: UIView {
     
-    weak var delegate:DGPlayViewDelegate?
+    weak var delegate:DGPlayerViewDelegate?
+
+    //BottomView
+    private lazy var playButton: UIButton = { [unowned self] in
+        let button = UIButton()
+        button.setImage(UIImage(named: "Play"), for: .selected)
+        button.addTarget(self, action: #selector(playButtonClicked(sender:)), for: .touchUpInside)
+        button.setImage(UIImage(named: "Stop"), for: .normal)
+        return button
+        }()
     
-    private lazy var bottomView: DGBottomView = { [unowned self] in
-        let view = DGBottomView()
-        view.alpha = 0
-        view.playButton.addTarget(self, action: #selector(playButtonClicked(sender:)), for: .touchUpInside)
-        view.rotateButton.addTarget(self, action: #selector(rotateButtonClicked), for: .touchUpInside)
-        view.progressSlider.addTarget(self, action: #selector(progressValueChanged(sender:)), for: .valueChanged)
-        view.progressSlider.addTarget(self, action: #selector(progressDragEnd(sender:)), for: [.touchUpInside,.touchCancel,.touchUpOutside])
-        view.distinctButton.addTarget(self, action: #selector(distinctButtonClicked(sender:)), for: .touchUpInside)
+    private lazy var rotateButton: UIButton = { [unowned self] in
+        let button = UIButton()
+        button.addTarget(self, action: #selector(rotateButtonClicked), for: .touchUpInside)
+        button.setImage(UIImage(named: "Rotation"), for: .normal)
+        return button
+        }()
+    
+    private lazy var loadedView: UIProgressView = {
+        let progress = UIProgressView()
+        progress.progressTintColor = UIColor(red: 167 / 255.0, green: 167 / 255.0, blue: 167 / 255.0, alpha: 1)
+        progress.progress = 0
+        return progress
+    }()
+    
+    private lazy var progressSlider: UISlider = { [unowned self] in
+        let slider = UISlider()
+        slider.minimumValue = 0
+        slider.maximumValue = 0
+        slider.minimumTrackTintColor = UIColor.red
+        slider.maximumTrackTintColor = UIColor.clear
+        slider.addTarget(self, action: #selector(progressValueChanged(sender:)), for: .valueChanged)
+        slider.addTarget(self, action: #selector(progressDragEnd(sender:)), for: [.touchUpInside,.touchCancel,.touchUpOutside])
+        slider.setThumbImage(UIImage(named: "icmpv_thumb_light"), for: .normal)
+        return slider
+        }()
+    
+    private lazy var distinctButton: UIButton = { [unowned self] in
+        let button = UIButton()
+        button.setTitle("高清", for: .normal)
+        button.addTarget(self, action: #selector(distinctButtonClicked(sender:)), for: .touchUpInside)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 14)
+        button.isHidden = true
+        return button
+        }()
+    
+    private lazy var currentTimeLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.textColor = UIColor.white
+        label.text = "00:00"
+        return label
+    }()
+    
+    private lazy var totalTimeLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.textColor = UIColor.white
+        label.text = "00:00"
+        return label
+    }()
+    
+    private lazy var backgroundImageView: UIImageView = UIImageView(image: UIImage(named: "video_mask_bottom"))
+    
+    private lazy var bottomView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.clear
         return view
     }()
     
@@ -41,7 +101,7 @@ class DGPlayView: UIView {
         return cover
     }()
     
-    private lazy var messageLabel: UILabel = { [unowned self] in
+    private lazy var messageLabel: UILabel = {
         let messageLabel = UILabel()
         messageLabel.font = UIFont.systemFont(ofSize: 13)
         messageLabel.textColor = UIColor.white
@@ -67,15 +127,17 @@ class DGPlayView: UIView {
     private var timeObserver: Any?
     private lazy var tapGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(showOrHideControlPanel))
     
-    private var currentTime: TimeInterval = 0 {
+    private var currentTime: TimeInterval = 0{
         didSet{
-            bottomView.currentTime = currentTime
+            currentTimeLabel.text = String(format: "%02ld:%02ld", Int(currentTime)/60,Int(currentTime)%60)
+            progressSlider.value = Float(currentTime)
         }
     }
     
-    private var totalTime: TimeInterval = 0 {
+    private var totalTime: TimeInterval = 0{
         didSet{
-            bottomView.totalTime = totalTime
+            totalTimeLabel.text = String(format: "%02ld:%02ld", Int(totalTime)/60,Int(totalTime)%60)
+            progressSlider.maximumValue = Float(totalTime)
         }
     }
     
@@ -94,9 +156,14 @@ class DGPlayView: UIView {
         }
     }
     
+    private var isFullScreen = false
+    private var parentView: UIView?
+    private var viewFrame: CGRect = CGRect()
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setupUI()
+        setupCenterUI()
+        setupBottomViewUI()
         addGestureRecognizer(tapGesture)
         player.addObserver(self, forKeyPath: "rate", options: .new, context: nil)
     }
@@ -105,16 +172,10 @@ class DGPlayView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func setupUI(){
+    private func setupCenterUI(){
         self.backgroundColor = UIColor.black
         layer.addSublayer(playerLayer)
-        addSubview(bottomView)
         addSubview(waitingView)
-        
-        bottomView.snp.makeConstraints { (make) in
-            make.height.equalTo(40)
-            make.bottom.left.right.equalToSuperview()
-        }
         
         waitingView.snp.makeConstraints { (make) in
             make.center.equalToSuperview()
@@ -130,6 +191,7 @@ class DGPlayView: UIView {
         replayButton.frame.size = CGSize(width: 50, height: 50)
         replayButton.center.x = bounds.width * 0.5
         replayButton.center.y = bounds.height * 0.5
+        updateBottonViewUI()
     }
     
     override func didMoveToWindow() {
@@ -145,7 +207,96 @@ class DGPlayView: UIView {
     }
 }
 
-extension DGPlayView {
+//MARK:--BottomView
+extension DGPlayerView {
+    
+    private func setupBottomViewUI(){
+        addSubview(bottomView)
+        bottomView.addSubview(backgroundImageView)
+        bottomView.addSubview(playButton)
+        bottomView.addSubview(currentTimeLabel)
+        bottomView.addSubview(rotateButton)
+        bottomView.addSubview(distinctButton)
+        bottomView.addSubview(totalTimeLabel)
+        bottomView.addSubview(loadedView)
+        bottomView.addSubview(progressSlider)
+        
+        bottomView.snp.makeConstraints { (make) in
+            make.height.equalTo(40)
+            make.bottom.left.right.equalToSuperview()
+        }
+        
+        playButton.snp.makeConstraints { (make) in
+            make.width.equalTo(31)
+            make.height.equalTo(40)
+            make.left.equalToSuperview().offset(0)
+            make.centerY.equalToSuperview()
+        }
+        
+        currentTimeLabel.snp.makeConstraints { (make) in
+            make.width.equalTo(40)
+            make.height.equalTo(11)
+            make.left.equalTo(playButton.snp.right).offset(0)
+            make.centerY.equalToSuperview()
+        }
+        
+        rotateButton.snp.makeConstraints { (make) in
+            make.width.equalTo(30)
+            make.height.equalTo(33)
+            make.right.equalToSuperview().offset(-10)
+            make.centerY.equalToSuperview()
+        }
+        
+        distinctButton.snp.makeConstraints { (make) in
+            make.width.equalTo(30)
+            make.height.equalTo(20)
+            make.right.equalTo(rotateButton.snp.left).offset(-8)
+            make.centerY.equalToSuperview()
+        }
+        
+        totalTimeLabel.snp.makeConstraints { (make) in
+            make.width.equalTo(40)
+            make.height.equalTo(11)
+            make.right.equalTo(distinctButton.snp.left).offset(-8)
+            make.centerY.equalToSuperview()
+        }
+        
+        progressSlider.snp.makeConstraints { (make) in
+            make.left.equalTo(currentTimeLabel.snp.right).offset(8)
+            make.right.equalTo(totalTimeLabel.snp.left).offset(-8)
+            make.centerY.equalToSuperview().offset(-1)
+        }
+        
+        loadedView.snp.makeConstraints { (make) in
+            make.height.equalTo(2)
+            make.left.equalTo(currentTimeLabel.snp.right).offset(8)
+            make.right.equalTo(totalTimeLabel.snp.left).offset(-8)
+            make.centerY.equalToSuperview()
+        }
+        
+        backgroundImageView.snp.makeConstraints { (make) in
+            make.top.left.right.bottom.equalToSuperview()
+        }
+        
+    }
+    
+    private func updateBottonViewUI(){
+        if distinctButton.isHidden{
+            distinctButton.snp.updateConstraints { (make) in
+                make.right.equalTo(rotateButton.snp.left).offset(0)
+                make.width.equalTo(0)
+            }
+        }else{
+            distinctButton.snp.updateConstraints { (make) in
+                make.right.equalTo(rotateButton.snp.left).offset(-8)
+                make.width.equalTo(30)
+            }
+        }
+    }
+}
+
+
+extension DGPlayerView {
     
     // 重置播放器
     private func resetPlayer(){
@@ -164,10 +315,10 @@ extension DGPlayView {
     
     private func playOrPause(){
         if isPlaying() {
-            bottomView.playButton.isSelected = true
+            playButton.isSelected = true
             player.pause()
         }else{
-             bottomView.playButton.isSelected = false
+             playButton.isSelected = false
             player.play()
         }
     }
@@ -205,7 +356,7 @@ extension DGPlayView {
         playerItem?.addObserver(self, forKeyPath: "loadedTimeRanges", options: .new, context: nil)
         playerItem?.addObserver(self, forKeyPath: "playbackBufferEmpty", options: .new, context: nil)
         playerItem?.addObserver(self, forKeyPath: "playbackLikelyToKeepUp", options: .new, context: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(playFinished(note:)), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(playFinished(note:)), name: Notification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
     }
     
     // 移除观察者和通知
@@ -239,7 +390,7 @@ extension DGPlayView {
             let loadedTimeRanges = playItem.loadedTimeRanges
             let timeRange = loadedTimeRanges.first!.timeRangeValue
             let bufferingTime = CMTimeGetSeconds(timeRange.start) + CMTimeGetSeconds(timeRange.duration)
-            bottomView.loadedView.setProgress(Float(bufferingTime / totalTime), animated: true)
+            loadedView.setProgress(Float(bufferingTime / totalTime), animated: true)
             if bufferingTime >= CMTimeGetSeconds(playItem.currentTime()) + 5{
                 waitingView.stopAnimating()
             }
@@ -255,15 +406,32 @@ extension DGPlayView {
             let rate = change![.newKey] as! Int
             if rate == 0{
                 isControlPanelShow = false
-                bottomView.playButton.isSelected = true
+                playButton.isSelected = true
             } else {
-                bottomView.playButton.isSelected = false
+                playButton.isSelected = false
             }
+        }
+    }
+    
+    private func onDeviceOrientation(_ orientation: UIDeviceOrientation){
+        if orientation.isPortrait {
+            self.removeFromSuperview()
+            parentView?.addSubview(self)
+            isFullScreen = false
+        } else if orientation.isLandscape {
+            parentView = self.superview
+            self.removeFromSuperview()
+            UIApplication.shared.keyWindow?.addSubview(self)
+            isFullScreen = true
+        }
+        self.snp.makeConstraints { (make) in
+            make.top.left.right.bottom.equalToSuperview()
         }
     }
 }
 
-extension DGPlayView{
+
+extension DGPlayerView{
     
     // KVO监测到播放完调用
     @objc private func playFinished(note: Notification){
@@ -288,7 +456,7 @@ extension DGPlayView{
     
     @objc private func progressDragEnd(sender: UISlider){
         self.currentTime = TimeInterval(sender.value)
-        player.seek(to: CMTimeMake(value: Int64(bottomView.progressSlider.value), timescale: 1), toleranceBefore: CMTime.zero, toleranceAfter: CMTime.zero)
+        player.seek(to: CMTimeMake(value: Int64(progressSlider.value), timescale: 1), toleranceBefore: CMTime.zero, toleranceAfter: CMTime.zero)
         addTimerObserver()
         player.play()
         // 延迟10.0秒后隐藏播放控制面板
@@ -303,6 +471,7 @@ extension DGPlayView{
         removeTimeObserver()
     }
     
+    //重播
     @objc private func replayButtonClicked(){
         cover.removeFromSuperview()
         isControlPanelShow = false
@@ -311,8 +480,18 @@ extension DGPlayView{
         addGestureRecognizer(tapGesture)
     }
     
+    
+    //旋转屏幕
     @objc private func rotateButtonClicked(){
-        delegate?.dgplayViewRotateButtonClicked()
+        let deviceType = UIDevice.current.model
+        if !isFullScreen{
+            onDeviceOrientation(.landscapeRight)
+            DeviceTool.interfaceOrientation(.landscapeRight)
+        }else{
+            onDeviceOrientation(.portrait)
+            DeviceTool.interfaceOrientation(.portrait)
+        }
+        delegate?.dgplayerViewRotateButtonClicked()
     }
     
     @objc private func distinctButtonClicked(sender: UIButton){
@@ -320,7 +499,10 @@ extension DGPlayView{
     }
 }
 
-extension DGPlayView{
+
+extension DGPlayerView{
+    
+    
     func setupPlay(urlStr:String){
         guard let url = URL(string: urlStr) else {
             return
@@ -338,3 +520,4 @@ extension DGPlayView{
         addPlayItemObserverAndNotification()
     }
 }
+

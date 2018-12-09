@@ -18,9 +18,10 @@
 		63A05C3621BBB2E900304FDB /* DGPlayerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A05C3521BBB2E900304FDB /* DGPlayerUITests.swift */; };
 		63A05C4521BBB35E00304FDB /* DGPlayer.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 63A05C4421BBB35E00304FDB /* DGPlayer.xcassets */; };
 		63A05C4821BBB39300304FDB /* DGLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A05C4721BBB39300304FDB /* DGLoadingView.swift */; };
-		63A05C4A21BBB3BF00304FDB /* DGBottomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A05C4921BBB3BF00304FDB /* DGBottomView.swift */; };
-		63A05C4C21BBC2FB00304FDB /* DGPlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A05C4B21BBC2FB00304FDB /* DGPlayView.swift */; };
+		63A05C4C21BBC2FB00304FDB /* DGPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A05C4B21BBC2FB00304FDB /* DGPlayerView.swift */; };
 		63A05C4E21BBF4D600304FDB /* TestViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A05C4D21BBF4D600304FDB /* TestViewController.swift */; };
+		63A05C5021BC104700304FDB /* DGPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A05C4F21BC104700304FDB /* DGPlayerViewController.swift */; };
+		63D43D8121BCDAA6004DF3BC /* DeviceTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 63D43D7F21BCDAA6004DF3BC /* DeviceTool.m */; };
 		E6981827CF72EF06F548A9B6 /* Pods_DGPlayerUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87EA634A113DC6400023144B /* Pods_DGPlayerUITests.framework */; };
 /* End PBXBuildFile section */
 
@@ -58,9 +59,12 @@
 		63A05C3721BBB2E900304FDB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		63A05C4421BBB35E00304FDB /* DGPlayer.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = DGPlayer.xcassets; sourceTree = "<group>"; };
 		63A05C4721BBB39300304FDB /* DGLoadingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DGLoadingView.swift; sourceTree = "<group>"; };
-		63A05C4921BBB3BF00304FDB /* DGBottomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DGBottomView.swift; sourceTree = "<group>"; };
-		63A05C4B21BBC2FB00304FDB /* DGPlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DGPlayView.swift; sourceTree = "<group>"; };
+		63A05C4B21BBC2FB00304FDB /* DGPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DGPlayerView.swift; sourceTree = "<group>"; };
 		63A05C4D21BBF4D600304FDB /* TestViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestViewController.swift; sourceTree = "<group>"; };
+		63A05C4F21BC104700304FDB /* DGPlayerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DGPlayerViewController.swift; sourceTree = "<group>"; };
+		63D43D7E21BCDAA4004DF3BC /* DGPlayer-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DGPlayer-Bridging-Header.h"; sourceTree = "<group>"; };
+		63D43D7F21BCDAA6004DF3BC /* DeviceTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DeviceTool.m; sourceTree = "<group>"; };
+		63D43D8021BCDAA6004DF3BC /* DeviceTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeviceTool.h; sourceTree = "<group>"; };
 		6BB2D1F2321245BD30DCD3FF /* Pods-DGPlayer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DGPlayer.debug.xcconfig"; path = "Pods/Target Support Files/Pods-DGPlayer/Pods-DGPlayer.debug.xcconfig"; sourceTree = "<group>"; };
 		85797799234D5B90683AB367 /* Pods-DGPlayerUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DGPlayerUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-DGPlayerUITests/Pods-DGPlayerUITests.release.xcconfig"; sourceTree = "<group>"; };
 		87EA634A113DC6400023144B /* Pods_DGPlayerUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DGPlayerUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -128,6 +132,7 @@
 				63A05C1521BBB2E400304FDB /* AppDelegate.swift */,
 				63A05C1721BBB2E400304FDB /* ViewController.swift */,
 				63A05C4D21BBF4D600304FDB /* TestViewController.swift */,
+				63D43D7E21BCDAA4004DF3BC /* DGPlayer-Bridging-Header.h */,
 				63A05C1921BBB2E400304FDB /* Main.storyboard */,
 				63A05C1C21BBB2E900304FDB /* Assets.xcassets */,
 				63A05C1E21BBB2E900304FDB /* LaunchScreen.storyboard */,
@@ -159,8 +164,10 @@
 			children = (
 				63A05C4421BBB35E00304FDB /* DGPlayer.xcassets */,
 				63A05C4721BBB39300304FDB /* DGLoadingView.swift */,
-				63A05C4921BBB3BF00304FDB /* DGBottomView.swift */,
-				63A05C4B21BBC2FB00304FDB /* DGPlayView.swift */,
+				63A05C4B21BBC2FB00304FDB /* DGPlayerView.swift */,
+				63A05C4F21BC104700304FDB /* DGPlayerViewController.swift */,
+				63D43D8021BCDAA6004DF3BC /* DeviceTool.h */,
+				63D43D7F21BCDAA6004DF3BC /* DeviceTool.m */,
 			);
 			path = DGPlayer;
 			sourceTree = "<group>";
@@ -260,6 +267,7 @@
 				TargetAttributes = {
 					63A05C1121BBB2E400304FDB = {
 						CreatedOnToolsVersion = 10.1;
+						LastSwiftMigration = 1010;
 					};
 					63A05C2521BBB2E900304FDB = {
 						CreatedOnToolsVersion = 10.1;
@@ -416,11 +424,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				63A05C1821BBB2E400304FDB /* ViewController.swift in Sources */,
+				63D43D8121BCDAA6004DF3BC /* DeviceTool.m in Sources */,
 				63A05C4821BBB39300304FDB /* DGLoadingView.swift in Sources */,
 				63A05C1621BBB2E400304FDB /* AppDelegate.swift in Sources */,
-				63A05C4C21BBC2FB00304FDB /* DGPlayView.swift in Sources */,
+				63A05C5021BC104700304FDB /* DGPlayerViewController.swift in Sources */,
+				63A05C4C21BBC2FB00304FDB /* DGPlayerView.swift in Sources */,
 				63A05C4E21BBF4D600304FDB /* TestViewController.swift in Sources */,
-				63A05C4A21BBB3BF00304FDB /* DGBottomView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -596,6 +605,7 @@
 			baseConfigurationReference = 6BB2D1F2321245BD30DCD3FF /* Pods-DGPlayer.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 32VW4RTG7L;
 				INFOPLIST_FILE = DGPlayer/Info.plist;
@@ -606,6 +616,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.chashao.DGPlayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "DGPlayer/DGPlayer-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -616,6 +628,7 @@
 			baseConfigurationReference = A46BAF37EE8F4E293FC5718C /* Pods-DGPlayer.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 32VW4RTG7L;
 				INFOPLIST_FILE = DGPlayer/Info.plist;
@@ -626,6 +639,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.chashao.DGPlayer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "DGPlayer/DGPlayer-Bridging-Header.h";
 				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

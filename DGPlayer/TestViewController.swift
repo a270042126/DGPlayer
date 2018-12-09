@@ -10,17 +10,17 @@ import UIKit
 
 class TestViewController: UIViewController {
 
-    let playView = DGPlayView()
+    let playerVC = DGPlayerViewController()
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor.white
-        playView.setupPlay(urlStr: "http://www.crowncake.cn:18080/wav/no.9.mp4")
-        self.view.addSubview(playView)
+        addChild(playerVC)
+        self.view.addSubview(playerVC.view)
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        playView.frame = CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.view.bounds.width * 9 / 16)
+        playerVC.view.frame = CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.view.bounds.width * 9 / 16)
     }
 
 }
