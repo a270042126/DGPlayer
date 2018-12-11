@@ -19,7 +19,7 @@ protocol DGPlayerViewDelegate: class {
 class DGPlayerView: UIView {
     
     weak var delegate:DGPlayerViewDelegate?
-
+    
     //BottomView
     private lazy var playButton: UIButton = { [unowned self] in
         let button = UIButton()
@@ -412,22 +412,6 @@ extension DGPlayerView {
             }
         }
     }
-    
-    private func onDeviceOrientation(_ orientation: UIDeviceOrientation){
-        if orientation.isPortrait {
-            self.removeFromSuperview()
-            parentView?.addSubview(self)
-            isFullScreen = false
-        } else if orientation.isLandscape {
-            parentView = self.superview
-            self.removeFromSuperview()
-            UIApplication.shared.keyWindow?.addSubview(self)
-            isFullScreen = true
-        }
-        self.snp.makeConstraints { (make) in
-            make.top.left.right.bottom.equalToSuperview()
-        }
-    }
 }
 
 
@@ -483,14 +467,13 @@ extension DGPlayerView{
     
     //旋转屏幕
     @objc private func rotateButtonClicked(){
-        let deviceType = UIDevice.current.model
-        if !isFullScreen{
-            onDeviceOrientation(.landscapeRight)
-            DeviceTool.interfaceOrientation(.landscapeRight)
-        }else{
-            onDeviceOrientation(.portrait)
-            DeviceTool.interfaceOrientation(.portrait)
-        }
+//        if !isFullScreen{
+//            onDeviceOrientation(.landscapeRight)
+//            setDeviceOrientation(.landscapeRight)
+//        }else{
+//            onDeviceOrientation(.portrait)
+//            setDeviceOrientation(.portrait)
+//        }
         delegate?.dgplayerViewRotateButtonClicked()
     }
     
@@ -519,5 +502,6 @@ extension DGPlayerView{
         addTimerObserver()
         addPlayItemObserverAndNotification()
     }
+    
 }
 
