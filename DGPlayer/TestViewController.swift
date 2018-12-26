@@ -22,8 +22,11 @@ class TestViewController: UIViewController {
         view.backgroundColor = UIColor.white
         addChild(playerVC)
         self.view.addSubview(playerVC.view)
-        let value = UIInterfaceOrientation.landscapeLeft.rawValue
-        playerVC.view.frame = CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.view.bounds.width * 9 / 16)
+        playerVC.view.snp.makeConstraints { (make) in
+            make.edges.equalToSuperview().inset(UIEdgeInsets.zero)
+        }
+//        let value = UIInterfaceOrientation.landscapeLeft.rawValue
+//        playerVC.view.frame = CGRect(x: 0, y: 0, width: self.view.bounds.width, height: self.view.bounds.width * 9 / 16)
     }
     
     override func viewDidLayoutSubviews() {

@@ -156,9 +156,9 @@ class DGPlayerView: UIView {
         }
     }
     
-    private var isFullScreen = false
-    private var parentView: UIView?
-    private var viewFrame: CGRect = CGRect()
+//    private var isFullScreen = false
+//    private var parentView: UIView?
+//    private var viewFrame: CGRect = CGRect()
     
     override init(frame: CGRect) {
         super.init(frame: frame)

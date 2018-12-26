@@ -11,7 +11,6 @@ import UIKit
 class DGPlayerViewController: UIViewController {
     
     private lazy var playerView = DGPlayerView()
-    private var isFullScreen = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,23 +23,30 @@ class DGPlayerViewController: UIViewController {
         }
     }
     
-    override func willTransition(to newCollection: UITraitCollection, with coordinator: UIViewControllerTransitionCoordinator) {
-        let orientation = UIDevice.current.orientation
-        onDeviceOrientation(orientation)
-    }
-
-    private func onDeviceOrientation(_ orientation: UIDeviceOrientation){
-        playerView.snp.removeConstraints()
-        playerView.removeFromSuperview()
-        if orientation.isPortrait {
-            isFullScreen = false
-            self.view.addSubview(playerView)
-        } else if orientation.isLandscape {
-            isFullScreen = true
-            UIApplication.shared.keyWindow?.rootViewController?.view.addSubview(playerView)
-        }
-        playerView.snp.makeConstraints { (make) in
-            make.top.left.right.bottom.equalToSuperview()
+//    override func willTransition(to newCollection: UITraitCollection, with coordinator: UIViewControllerTransitionCoordinator) {
+//         print("willTransition")
+//        let orientation = UIDevice.current.orientation
+//        onDeviceOrientation(orientation)
+//    }
+//
+//    private func onDeviceOrientation(_ orientation: UIDeviceOrientation){
+////        playerView.snp.removeConstraints()
+////        playerView.removeFromSuperview()
+////        if orientation.isPortrait {
+////            isFullScreen = false
+////            self.view.addSubview(playerView)
+////        } else if orientation.isLandscape {
+////            isFullScreen = true
+////            UIApplication.shared.keyWindow?.rootViewController?.view.addSubview(playerView)
+////        }
+////        playerView.snp.makeConstraints { (make) in
+////            make.top.left.right.bottom.equalToSuperview()
+////        }
+//    }
+    
+    private var isLandscape: Bool = false {
+        didSet{
+            UIApplication.changeOrientationTo(landscape: isLandscape)
         }
     }
     
@@ -56,22 +62,6 @@ class DGPlayerViewController: UIViewController {
 extension DGPlayerViewController: DGPlayerViewDelegate{
     
     func dgplayerViewRotateButtonClicked() {
-        let deviceType = UIDevice.current.model
-        if !isFullScreen{
-            if deviceType == "iPad"{
-                isFullScreen = true
-                onDeviceOrientation(.landscapeRight)
-            }else{
-                setDeviceOrientation(.landscapeRight)
-            }
-        }else{
-            if deviceType == "iPad"{
-                isFullScreen = false
-                onDeviceOrientation(.portrait)
-            }else{
-                setDeviceOrientation(.portrait)
-            }
-        }
-        
+       isLandscape = !isLandscape
     }
 }
